@@ -1,68 +1,159 @@
-# Bloc de Notas Moderno (Python + PyQt6)
+# NotepadX (Modern Notepad) 📝
 
-Una aplicación de bloc de notas moderna, limpia y minimalista, desarrollada en Python utilizando el framework PyQt6. Este proyecto implementa el patrón de arquitectura **Modelo-Vista-Controlador (MVC)**, garantizando un código modular, escalable y fácil de mantener.
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![PyQt6](https://img.shields.io/badge/GUI-PyQt6-41CD52?style=flat&logo=qt&logoColor=white)](https://riverbankcomputing.com/software/pyqt/)
+[![Architecture](https://img.shields.io/badge/Architecture-MVC-orange?style=flat)](#-architecture--arquitectura)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-La interfaz está fuertemente inspirada en las líneas de diseño del Bloc de Notas de Windows 11, añadiendo mejoras exclusivas en la experiencia de usuario, diseño UI/UX (modo oscuro dinámico, bordes redondeados, formato de texto) y herramientas para desarrolladores/escritores.
+> **English:** A sleek, modern Notepad desktop application built with Python and PyQt6 featuring tabs, dynamic light/dark themes, real-time Spanish spell checking, rich text styling, and an MVC architecture.
+>
+> **Español:** Un bloc de notas de escritorio moderno, limpio y minimalista desarrollado en Python y PyQt6 con pestañas, modo oscuro dinámico, corrector ortográfico en español, formato enriquecido y arquitectura MVC.
 
-## 🚀 Características Principales
+---
 
-*   **Pestañas Múltiples:** Soporte para trabajar con varios documentos simultáneamente. Incluye un botón rápido `+` para nuevas pestañas.
-*   **Modo Claro / Oscuro (Dinámico):** Alterna instantáneamente entre dos temas profesionales y elegantes utilizando un botón ovalado de diseño moderno ubicado en la barra de menús.
-*   **Editor de Texto Enriquecido:** Soporte para texto con formato. Incluye herramientas para aplicar Negrita (B), Cursiva (I), Tachado (S), y diferentes niveles de Títulos (H1, H2, H3).
-*   **Corrector Ortográfico Inteligente (Español):** Subrayado de palabras mal escritas en tiempo real y sugerencias de corrección directamente en el menú contextual.
-*   **Numeración de Líneas Avanzada:** Un panel lateral integrado que muestra los números de línea y resalta visualmente la línea en la que se encuentra el cursor.
-*   **Barra de Estado Inteligente:** Muestra estadísticas en tiempo real como el número total de palabras y la posición exacta del cursor (Línea y Columna).
-*   **Buscar y Reemplazar:** Panel de búsqueda y reemplazo dinámico.
-*   **Ajuste de Línea (Word Wrap):** Opción para alternar el ajuste automático de texto desde el menú Ver.
-*   **Arquitectura MVC:** Código separado lógicamente en Modelo (datos y lógica de estado), Vista (interfaz gráfica) y Controlador (eventos y acciones).
+## 🌐 Language / Idioma
+- [English Documentation](#-english-documentation)
+- [Documentación en Español](#-documentación-en-español)
+- [Architecture Diagram / Diagrama de Arquitectura](#-architecture--arquitectura)
 
-## 🛠️ Tecnologías Utilizadas
+---
 
-*   **Lenguaje:** Python 3.10+
-*   **Framework UI:** PyQt6
-*   **Corrector Ortográfico:** pyspellchecker
-*   **Estilos:** Qt Style Sheets (QSS) avanzados.
+## 🇬🇧 English Documentation
 
-## 📂 Estructura del Proyecto
+### Overview
+**NotepadX** is a desktop text editor inspired by the Windows 11 Fluent Design language. It pairs a clean writing environment with productivity features such as rich text formatting, intelligent spell checking, customizable typography, and a dynamic theme engine.
+
+### 🚀 Key Features
+* 📑 **Multi-Tab Workspace:** Open, edit, and manage multiple documents concurrently with a quick `+` tab action.
+* 🌓 **Dynamic Theme Engine:** Switch between polished Light and Dark modes in real-time via an integrated pill switch in the menu bar.
+* ✨ **Rich Text Formatting:** Apply Bold (**B**), Italic (*I*), Strikethrough (~~S~~), and structured Headings (H1, H2, H3).
+* ✍️ **Intelligent Spell Checker (Spanish):** Underlines misspelled terms in real time with contextual right-click replacement suggestions powered by `pyspellchecker`.
+* 🔢 **Smart Line Numbers:** Integrated gutter with line counts and visual highlighting for the active editing line.
+* 📊 **Live Status Bar:** Real-time statistics including total word count and accurate cursor coordinates (Line & Column).
+* 🔍 **Find & Replace:** Fast, non-intrusive interactive search and replace panel.
+* 📐 **Word Wrap Toggle:** Toggle dynamic line wrapping on demand from the View menu.
+* 🏛️ **Decoupled MVC Pattern:** Strict separation of concerns between state/file logic, presentation, and user actions.
+
+### 🛠️ Tech Stack
+* **Language:** Python 3.10+
+* **GUI Framework:** PyQt6
+* **Spell Engine:** `pyspellchecker`
+* **Styling:** Advanced Qt Style Sheets (QSS)
+
+---
+
+## 🇪🇸 Documentación en Español
+
+### Descripción General
+Una aplicación de bloc de notas moderna, limpia y minimalista desarrollada en Python utilizando el framework PyQt6. Este proyecto implementa el patrón de arquitectura **Modelo-Vista-Controlador (MVC)**, garantizando un código modular, escalable y fácil de mantener.
+
+La interfaz está inspirada en las líneas de diseño del Bloc de Notas de Windows 11, añadiendo mejoras clave en la experiencia de usuario (modo oscuro dinámico, bordes redondeados, formato de texto) y herramientas para desarrolladores y redactores.
+
+### 🚀 Características Principales
+* **Pestañas Múltiples:** Soporte para trabajar con varios documentos simultáneamente con botón rápido `+`.
+* **Modo Claro / Oscuro Dinámico:** Alternancia instantánea entre dos temas profesionales mediante un botón tipo píldora en la barra superior.
+* **Editor de Texto Enriquecido:** Herramientas para Negrita (B), Cursiva (I), Tachado (S) y niveles de títulos (H1, H2, H3).
+* **Corrector Ortográfico Inteligente (Español):** Subrayado en tiempo real y sugerencias en menú contextual.
+* **Numeración de Líneas Avanzada:** Panel lateral integrado que resalta visualmente la línea activa del cursor.
+* **Barra de Estado Inteligente:** Estadísticas en vivo de palabras totales y posición del cursor (Línea / Columna).
+* **Buscar y Reemplazar:** Panel dinámico e integrado.
+* **Ajuste de Línea (Word Wrap):** Alternable desde el menú Ver.
+* **Arquitectura MVC:** Separación limpia de responsabilidades.
+
+---
+
+## 🏛️ Architecture / Arquitectura
+
+El proyecto sigue una arquitectura desacoplada **Modelo-Vista-Controlador (MVC)** orientada a eventos Qt (Signals & Slots):
+
+```mermaid
+flowchart LR
+    User([Usuario / User]) -->|Interacciones / UI Events| View[Vista / View\nEditorView + EditorWidget]
+    View -->|Qt Signals / Disparadores| Controller[Controlador / Controller\nEditorController]
+    Controller -->|Actualiza / Updates| Model[(Modelo / Model\nEditorModel)]
+    Model -->|Datos y Estado / State & Content| Controller
+    Controller -->|Renderiza / Updates UI| View
+    
+    subgraph UI_Components [Componentes de Presentación]
+        View
+        Styles[Hojas de Estilo QSS\nLight / Dark] -.-> View
+    end
+    
+    subgraph Services [Servicios y Motores]
+        Spell[Corrector Ortográfico\npyspellchecker] <--> Controller
+        FS[(Sistema de Archivos / I-O)] <--> Model
+    end
+```
+
+### Flujo de Datos / Data Flow
+1. **User Action:** El usuario edita texto, abre un archivo o pulsa un atajo de teclado en la **Vista**.
+2. **Signal Dispatch:** La **Vista** emite señales PyQt hacia el **Controlador**.
+3. **Business Logic & Services:** El **Controlador** coordina con el motor ortográfico y solicita cambios de estado al **Modelo**.
+4. **Model State & Persistence:** El **Modelo** gestiona el contenido de cada pestaña y la persistencia en disco.
+5. **View Refresh:** El **Controlador** actualiza la interfaz, el conteo de palabras, la barra de estado y los estilos activos.
+
+---
+
+## 📂 Project Structure / Estructura del Proyecto
 
 ```text
-BLOC DE NOTAS/
+NotepadX/
 │
-├── main.py                   # Punto de entrada de la aplicación
-├── requirements.txt          # Dependencias (PyQt6)
-├── README.md                 # Documentación del proyecto
+├── main.py                   # Entry point / Punto de entrada
+├── requirements.txt          # Dependencies / Dependencias
+├── README.md                 # Project documentation / Documentación
+├── .gitignore                # Git exclusions / Reglas de exclusión Git
+├── .env.example              # Environment template / Plantilla de entorno
 │
 └── app/
     ├── __init__.py
-    ├── model.py              # Lógica de datos (manejo de archivos y estado de pestañas)
-    ├── view.py               # Configuración de la UI (Menús, Barras, Layouts)
-    ├── controller.py         # Intermediario (Eventos, atajos de teclado, interacciones)
-    ├── editor_widget.py      # Widget personalizado (QTextEdit + Área de números de línea)
+    ├── model.py              # File logic & tab data state / Lógica de datos
+    ├── view.py               # UI components, menus & toolbars / Interfaz gráfica
+    ├── controller.py         # Event orchestration & actions / Orquestador de eventos
+    ├── editor_widget.py      # Custom editor with line numbers / Editor con gutter de líneas
+    │
+    ├── icons/                # Vector & UI icons / Iconos de la interfaz
     │
     └── styles/
-        ├── light.qss         # Hoja de estilos para el Tema Claro
-        └── dark.qss          # Hoja de estilos para el Tema Oscuro
+        ├── light.qss         # Light theme stylesheet / Tema claro
+        └── dark.qss          # Dark theme stylesheet / Tema oscuro
 ```
 
-## ⚙️ Instalación y Uso
+---
 
-1. **Clonar o descargar** el repositorio.
-2. **Crear un entorno virtual** (opcional pero recomendado):
+## ⚙️ Installation & Run / Instalación y Uso
+
+1. **Clone the repository / Clonar el repositorio:**
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # En Windows: .venv\Scripts\activate
+   git clone https://github.com/tu-usuario/NotepadX.git
+   cd NotepadX
    ```
-3. **Instalar dependencias:**
+
+2. **Create and activate a virtual environment / Crear entorno virtual:**
+   ```bash
+   # Windows (PowerShell)
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+
+   # Linux / macOS
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. **Install dependencies / Instalar dependencias:**
    ```bash
    pip install -r requirements.txt
    ```
-4. **Ejecutar la aplicación:**
+
+4. **Launch NotepadX / Ejecutar la aplicación:**
    ```bash
    python main.py
    ```
 
-## 🎨 Decisiones de Diseño (UI/UX)
+---
 
-- **Layout y QSS:** Se han ajustado al milímetro los espacios (`spacing`) y los márgenes de la barra de herramientas para asegurar compacidad.
-- **Botón de Temas:** Emplazado en la Barra de Menú (esquina superior derecha) en forma de píldora (ovalado) para separar las acciones de formato de la aplicación.
-- **Manejo de QTabBar:** Solución personalizada en QSS para asegurar que las pestañas inactivas se integren armónicamente tanto en modo oscuro como claro.
+## 🎨 UI/UX Design Decisions / Decisiones de Diseño
+
+- **Fluent Spacing & Margins:** Espaciado y padding calibrados al píxel para brindar una experiencia compacta y moderna.
+- **Pill-shaped Mode Switch:** Conmutador de modo claro/oscuro ubicado en la barra de menús para accesibilidad inmediata sin saturar la barra de herramientas.
+- **Harmonized QTabBar:** Estilización personalizada en QSS para una integración limpia de pestañas activas e inactivas en ambos modos de color.
