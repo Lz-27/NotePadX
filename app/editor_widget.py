@@ -200,7 +200,7 @@ class CustomTextEdit(QTextEdit):
                     font = painter.font()
                     font.setBold(True)
                     painter.setFont(font)
-                    painter.setPen(QColor("#3B82F6")) # Un azul claro para resaltar
+                    painter.setPen(QColor("#38BDF8")) # Azul acento Fluent
                 else:
                     font = painter.font()
                     font.setBold(False)
