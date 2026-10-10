@@ -1,0 +1,196 @@
+/* dark.qss */
+
+QMainWindow, QWidget#centralWidget, QTabWidget#mainTabs, QTabBar {
+    background-color: #111827;
+    color: #F9FAFB;
+}
+
+QTextEdit, #editor {
+    background-color: #111827;
+    color: #F9FAFB;
+    border: none;
+    padding: 5px;
+    selection-background-color: #3B82F6;
+    selection-color: #FFFFFF;
+}
+
+#binaryTerminal {
+    background-color: #1F2937;
+    color: #34D399;
+    font-family: 'Courier New', monospace;
+    font-size: 12pt;
+    padding: 10px;
+    border-left: 1px solid #374151;
+}
+
+#markdownPreview {
+    background-color: #1F2937;
+    color: #F3F4F6;
+    font-family: "Segoe UI", "Inter", sans-serif;
+    font-size: 11pt;
+    padding: 15px;
+    border-left: 1px solid #374151;
+}
+
+LineNumberArea {
+    background-color: #111827;
+    color: #6B7280;
+}
+
+/* Tab Widget Styling */
+QTabWidget::pane { 
+    border: 0px; 
+    border-top: 1px solid #374151;
+}
+
+QTabBar::tab {
+    background-color: #111827;
+    color: #D1D5DB;
+    border: 1px solid #374151;
+    border-bottom: none;
+    padding: 8px 16px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-right: 2px;
+}
+
+QTabBar::tab:selected {
+    background-color: #1F2937;
+    color: #F9FAFB;
+    border: 1px solid #374151;
+    border-bottom: 2px solid #3B82F6;
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: #1F2937;
+}
+
+QTabBar::close-button {
+    image: url("app/icons/close_dark.svg");
+    background: transparent;
+    padding: 2px;
+}
+
+QTabBar::close-button:hover {
+    background-color: #374151;
+    border-radius: 4px;
+}
+
+/* Toolbars */
+QToolBar {
+    background-color: #111827;
+    border-bottom: 1px solid #374151;
+    padding: 0px;
+    spacing: 2px;
+}
+
+QPushButton, QComboBox, QSpinBox {
+    background-color: transparent;
+    color: #D1D5DB;
+    border: 1px solid transparent;
+    padding: 6px 14px;
+    margin: 2px 4px;
+    border-radius: 6px;
+    font-family: "Segoe UI", "Inter", sans-serif;
+    font-size: 11pt;
+    min-height: 26px;
+}
+
+QPushButton:hover, QComboBox:hover, QSpinBox:hover {
+    background-color: #374151;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #1F2937;
+    color: #F9FAFB;
+    border: 1px solid #374151;
+    selection-background-color: #3B82F6;
+    selection-color: #FFFFFF;
+}
+
+QPushButton:checked {
+    background-color: #4B5563;
+    border: 1px solid #9CA3AF;
+}
+
+/* Add Tab Button */
+QToolButton#addTabBtn {
+    background-color: transparent;
+    color: #9CA3AF;
+    font-size: 16pt;
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 0px 8px;
+    margin-right: 5px;
+}
+QToolButton#addTabBtn:hover {
+    background-color: #374151;
+    color: #F9FAFB;
+}
+
+/* Theme Toggle Button (Pill/Oval shape) */
+QPushButton#themeToggle {
+    background-color: #374151;
+    color: #F9FAFB;
+    border: 1px solid #4B5563;
+    border-radius: 14px;
+    padding: 4px 16px;
+    font-weight: bold;
+    margin: 2px;
+    min-height: 26px;
+    min-width: 70px;
+}
+QPushButton#themeToggle:hover {
+    background-color: #4B5563;
+}
+
+/* Find/Replace Bar */
+QLineEdit {
+    padding: 4px 8px;
+    border: 1px solid #4B5563;
+    border-radius: 4px;
+    background: #1F2937;
+    color: #F3F4F6;
+}
+
+/* Menus */
+QMenuBar {
+    background-color: #111827;
+    color: #D1D5DB;
+    font-size: 10pt;
+    padding: 2px 0px;
+    border-bottom: 1px solid #374151;
+}
+
+QMenuBar::item {
+    padding: 6px 12px;
+    margin: 0px 4px;
+    background: transparent;
+    border-radius: 6px;
+}
+
+QMenuBar::item:selected {
+    background-color: #374151;
+}
+
+QMenu {
+    background-color: #1F2937;
+    color: #D1D5DB;
+    border: 1px solid #374151;
+    padding: 2px 0px;
+    margin: 0px;
+}
+
+QMenu::item {
+    padding: 2px 20px 2px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #374151;
+}
+
+QStatusBar {
+    background-color: #111827;
+    color: #9CA3AF;
+    font-size: 9pt;
+}
