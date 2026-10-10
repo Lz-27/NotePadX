@@ -66,7 +66,9 @@ class EditorView(QMainWindow):
         self.lbl_cursor_pos = QLabel("Ln 1, Col 1")
         self.lbl_word_count = QLabel("0 palabras")
         
-        self.btn_info = QPushButton("ℹ️ Info")
+        self.btn_info = QPushButton("Acerca de")
+        self.btn_info.setObjectName("btnInfo")
+        self.btn_info.setIcon(QIcon("app/icons/info.svg"))
         self.btn_info.setToolTip("Información del Proyecto")
         self.btn_info.setCursor(Qt.CursorShape.PointingHandCursor)
         
@@ -76,21 +78,23 @@ class EditorView(QMainWindow):
         self.status_bar.addPermanentWidget(self.lbl_cursor_pos)
         self.status_bar.addPermanentWidget(self.lbl_word_count)
         
-        # Menus & Toolbars setup (restoring these!)
+        # Menus & Toolbars setup
         self._setup_actions()
         self._setup_menu()
         self._setup_main_toolbar()
         
-        # Theme Toggle Button (Moved to MenuBar to go higher)
-        self.btn_toggle_theme = QPushButton("☀️ Claro")
+        # Theme Toggle Button (Pill button in top right of menuBar)
+        self.btn_toggle_theme = QPushButton("Modo Claro")
+        self.btn_toggle_theme.setIcon(QIcon("app/icons/sun.svg"))
         self.btn_toggle_theme.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_toggle_theme.setObjectName("themeToggle")
         self.menuBar().setCornerWidget(self.btn_toggle_theme, Qt.Corner.TopRightCorner)
 
     def _setup_find_replace_bar(self):
         self.find_bar_widget = QWidget()
+        self.find_bar_widget.setObjectName("findBarWidget")
         self.find_bar_layout = QHBoxLayout(self.find_bar_widget)
-        self.find_bar_layout.setContentsMargins(10, 5, 10, 5)
+        self.find_bar_layout.setContentsMargins(12, 6, 12, 6)
         
         self.find_input = QLineEdit()
         self.find_input.setPlaceholderText("Buscar...")
@@ -227,20 +231,20 @@ class EditorView(QMainWindow):
         self.main_toolbar.addWidget(self.btn_strike)
         
         self.main_toolbar.addSeparator()
-        self.btn_toggle_binary = QPushButton("01")
-        self.btn_toggle_binary.setToolTip("Modo Binario")
+        self.btn_toggle_binary = QPushButton("Binario")
+        self.btn_toggle_binary.setToolTip("Alternar Panel Binario (Traducir texto a binario / binario a texto)")
         self.btn_toggle_binary.setCheckable(True)
         self.btn_toggle_binary.setCursor(Qt.CursorShape.PointingHandCursor)
         self.main_toolbar.addWidget(self.btn_toggle_binary)
         
-        self.btn_toggle_markdown = QPushButton("M↓")
-        self.btn_toggle_markdown.setToolTip("Markdown Preview")
+        self.btn_toggle_markdown = QPushButton("Markdown")
+        self.btn_toggle_markdown.setToolTip("Alternar Vista Previa Markdown")
         self.btn_toggle_markdown.setCheckable(True)
         self.btn_toggle_markdown.setCursor(Qt.CursorShape.PointingHandCursor)
         self.main_toolbar.addWidget(self.btn_toggle_markdown)
         
         self.combo_binary_mode = QComboBox()
-        self.combo_binary_mode.addItems(["Texto ➡️ Binario", "Binario ➡️ Texto"])
+        self.combo_binary_mode.addItems(["Texto ➔ Binario", "Binario ➔ Texto"])
         self.combo_binary_action = self.main_toolbar.addWidget(self.combo_binary_mode)
         self.combo_binary_action.setVisible(False)
 
