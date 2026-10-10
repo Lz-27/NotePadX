@@ -110,12 +110,15 @@ class EditorController:
         return route
 
     def _apply_theme(self):
+        from PyQt6.QtGui import QIcon
         if self.is_dark_mode:
             self.view.setStyleSheet(self.style_dark)
-            self.view.btn_toggle_theme.setText("☀️ Claro")
+            self.view.btn_toggle_theme.setText("Modo Claro")
+            self.view.btn_toggle_theme.setIcon(QIcon("app/icons/sun.svg"))
         else:
             self.view.setStyleSheet(self.style_light)
-            self.view.btn_toggle_theme.setText("🌙 Oscuro")
+            self.view.btn_toggle_theme.setText("Modo Oscuro")
+            self.view.btn_toggle_theme.setIcon(QIcon("app/icons/moon.svg"))
 
     def toggle_theme(self):
         self.is_dark_mode = not self.is_dark_mode
