@@ -1,5 +1,7 @@
 # NotepadX (Modern Notepad) 📝
 
+<img width="997" height="777" alt="Image" src="https://github.com/user-attachments/assets/209dd476-95d7-4a21-816c-6c67e7ce9538" />
+
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![PyQt6](https://img.shields.io/badge/GUI-PyQt6-41CD52?style=flat&logo=qt&logoColor=white)](https://riverbankcomputing.com/software/pyqt/)
 [![Architecture](https://img.shields.io/badge/Architecture-MVC-orange?style=flat)](#-architecture--arquitectura)
