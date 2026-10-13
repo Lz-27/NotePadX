@@ -84,8 +84,8 @@ class EditorView(QMainWindow):
         self._setup_main_toolbar()
         
         # Theme Toggle Button (Pill button in top right of menuBar)
-        self.btn_toggle_theme = QPushButton("Modo Claro")
-        self.btn_toggle_theme.setIcon(QIcon("app/icons/sun.svg"))
+        self.btn_toggle_theme = QPushButton("Modo Oscuro")
+        self.btn_toggle_theme.setIcon(QIcon("app/icons/moon.svg"))
         self.btn_toggle_theme.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_toggle_theme.setObjectName("themeToggle")
         self.menuBar().setCornerWidget(self.btn_toggle_theme, Qt.Corner.TopRightCorner)
@@ -232,12 +232,14 @@ class EditorView(QMainWindow):
         
         self.main_toolbar.addSeparator()
         self.btn_toggle_binary = QPushButton("Binario")
+        self.btn_toggle_binary.setObjectName("btnToggleBinary")
         self.btn_toggle_binary.setToolTip("Alternar Panel Binario (Traducir texto a binario / binario a texto)")
         self.btn_toggle_binary.setCheckable(True)
         self.btn_toggle_binary.setCursor(Qt.CursorShape.PointingHandCursor)
         self.main_toolbar.addWidget(self.btn_toggle_binary)
         
         self.btn_toggle_markdown = QPushButton("Markdown")
+        self.btn_toggle_markdown.setObjectName("btnToggleMarkdown")
         self.btn_toggle_markdown.setToolTip("Alternar Vista Previa Markdown")
         self.btn_toggle_markdown.setCheckable(True)
         self.btn_toggle_markdown.setCursor(Qt.CursorShape.PointingHandCursor)
