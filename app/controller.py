@@ -36,7 +36,9 @@ class EditorController:
         
     def _load_stylesheet(self, filepath):
         try:
-            with open(filepath, "r") as f:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            full_path = os.path.join(base_dir, filepath) if not os.path.isabs(filepath) else filepath
+            with open(full_path, "r", encoding="utf-8") as f:
                 return f.read()
         except Exception:
             return ""
@@ -113,12 +115,18 @@ class EditorController:
         from PyQt6.QtGui import QIcon
         if self.is_dark_mode:
             self.view.setStyleSheet(self.style_dark)
-            self.view.btn_toggle_theme.setText("Modo Claro")
-            self.view.btn_toggle_theme.setIcon(QIcon("app/icons/sun.svg"))
-        else:
-            self.view.setStyleSheet(self.style_light)
             self.view.btn_toggle_theme.setText("Modo Oscuro")
             self.view.btn_toggle_theme.setIcon(QIcon("app/icons/moon.svg"))
+        else:
+            self.view.setStyleSheet(self.style_light)
+            self.view.btn_toggle_theme.setText("Modo Claro")
+            self.view.btn_toggle_theme.setIcon(QIcon("app/icons/sun.svg"))
+
+        # Forzar repintado del área de números de línea en todos los editores abiertos
+        for i in range(self.view.tabs.count()):
+            editor = self.view.tabs.widget(i)
+            if hasattr(editor, "line_number_area"):
+                editor.line_number_area.update()
 
     def toggle_theme(self):
         self.is_dark_mode = not self.is_dark_mode
