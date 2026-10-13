@@ -251,6 +251,12 @@ QComboBox::drop-down {
     width: 20px;
 }
 
+QComboBox::down-arrow {
+    image: url("app/icons/chevron_down_dark.svg");
+    width: 10px;
+    height: 10px;
+}
+
 QComboBox QAbstractItemView {
     background-color: #252526;
     color: #F0F0F0;
@@ -312,6 +318,10 @@ QStatusBar {
     font-size: 9pt;
     border-top: 1px solid #2D2D2D;
     padding: 2px 8px;
+}
+
+QStatusBar::item {
+    border: none;
 }
 
 QStatusBar QLabel {
