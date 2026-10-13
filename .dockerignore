@@ -1,0 +1,111 @@
+# ==============================================================================
+# .dockerignore - NotepadX
+# Optimiza el contexto de construcción de Docker ignorando archivos innecesarios
+# ==============================================================================
+
+# Control de versiones (Git)
+.git/
+.gitignore
+.gitattributes
+
+# Entornos virtuales de Python
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Bytecode y caches de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Variables de entorno y secretos locales
+.env
+.env.*
+!.env.example
+secrets.json
+config.local.json
+*.key
+*.pem
+*.pfx
+*.cert
+*.crt
+
+# Asistentes de IA y configuración de agentes locales
+.agent/
+.agents/
+.claude/
+.codex/
+.gemini/
+.opencode/
+.impeccable/
+
+# IDEs y editores de código
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# Archivos del sistema operativo
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*~
+.directory
+.Trash-*
+
+# Logs y bases de datos locales
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Pruebas y cobertura
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Documentación y archivos de notas de desarrollo
+Docs/
+ideas_mejoras.md
+implementation_plan.md
+
+# Archivos propios de Docker (evita invalidar caché innecesariamente)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
