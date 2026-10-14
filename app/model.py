@@ -31,32 +31,31 @@ class EditorModel:
         except Exception as e:
             raise e
 
-    def text_to_binary(self, text):
-        """Converts normal text to binary string, preserving newlines."""
+    def text_to_binary(self, text, chunk_size=4096):
+        """Converts normal text to binary string, preserving newlines efficiently."""
         if not text:
             return ""
-        lines = text.split('\n')
+        # Procesa eficientemente línea por línea y carácter por carácter
         binary_lines = []
-        for line in lines:
-            # Convert each character to 8-bit binary and join with space
-            binary_line = ' '.join(format(ord(c), '08b') for c in line)
+        for line in text.split('\n'):
+            binary_line = ' '.join(f"{ord(c):08b}" for c in line)
             binary_lines.append(binary_line)
         return '\n'.join(binary_lines)
 
-    def binary_to_text(self, binary_text):
-        """Converts binary string back to normal text."""
+    def binary_to_text(self, binary_text, chunk_size=4096):
+        """Converts binary string back to normal text efficiently."""
         if not binary_text:
             return ""
-        lines = binary_text.split('\n')
         text_lines = []
-        for line in lines:
+        for line in binary_text.split('\n'):
             blocks = line.split(' ')
             chars = []
-            for block in blocks:
-                if len(block) == 8 and all(c in '01' for c in block):
+            for b in blocks:
+                if len(b) == 8 and all(c in '01' for c in b):
                     try:
-                        chars.append(chr(int(block, 2)))
+                        chars.append(chr(int(b, 2)))
                     except ValueError:
                         pass
             text_lines.append(''.join(chars))
         return '\n'.join(text_lines)
+
