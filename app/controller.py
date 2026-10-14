@@ -3,7 +3,7 @@ from datetime import datetime
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
 from PyQt6.QtGui import QTextCharFormat, QFont, QTextCursor
 from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, QVariantAnimation
-from app.editor_widget import CustomTextEdit
+from app.editor_widget import CustomTextEdit, LazyTabPlaceholder
 
 class EditorController:
     """
@@ -84,6 +84,12 @@ class EditorController:
         self.view.combo_font.currentFontChanged.connect(self._change_font)
         self.view.spin_size.valueChanged.connect(self._change_font)
         
+        completer = self.view.combo_font.completer()
+        if completer:
+            completer.activated[str].connect(self._on_font_completed)
+        if self.view.combo_font.lineEdit():
+            self.view.combo_font.lineEdit().returnPressed.connect(self._on_font_return_pressed)
+        
         # Add Tab Button
         self.view.btn_add_tab.clicked.connect(lambda: self.new_tab())
         self.view.combo_headers.currentTextChanged.connect(self._apply_header)
@@ -113,19 +119,26 @@ class EditorController:
 
     def _apply_theme(self):
         from PyQt6.QtGui import QIcon
+        from PyQt6.QtWidgets import QApplication
+        app = QApplication.instance()
         if self.is_dark_mode:
             self.view.setStyleSheet(self.style_dark)
+            if app:
+                app.setStyleSheet(self.style_dark)
             self.view.btn_toggle_theme.setText("Modo Oscuro")
             self.view.btn_toggle_theme.setIcon(QIcon("app/icons/moon.svg"))
         else:
             self.view.setStyleSheet(self.style_light)
+            if app:
+                app.setStyleSheet(self.style_light)
             self.view.btn_toggle_theme.setText("Modo Claro")
             self.view.btn_toggle_theme.setIcon(QIcon("app/icons/sun.svg"))
 
         # Forzar repintado del área de números de línea en todos los editores abiertos
         for i in range(self.view.tabs.count()):
-            editor = self.view.tabs.widget(i)
-            if hasattr(editor, "line_number_area"):
+            widget = self.view.tabs.widget(i)
+            editor = widget.get_editor() if hasattr(widget, "get_editor") else widget
+            if editor and hasattr(editor, "line_number_area"):
                 editor.line_number_area.update()
 
     def toggle_theme(self):
@@ -145,7 +158,8 @@ class EditorController:
 
     # --- Gestión de Pestañas ---
     
-    def new_tab(self, content="", title="Sin Título", filepath=None):
+    def _create_editor_instance(self, content="", filepath=None):
+        """Crea, inicializa y conecta una instancia real de CustomTextEdit."""
         editor = CustomTextEdit()
         editor.setFont(self.current_font)
         
@@ -161,24 +175,67 @@ class EditorController:
             else CustomTextEdit.LineWrapMode.NoWrap
         )
         
-        index = self.view.tabs.addTab(editor, title)
-        self.view.tabs.setCurrentIndex(index)
         self.tab_files[editor] = filepath
         
         # Conectar actualizaciones en vivo
         editor.textChanged.connect(self._update_live_stats)
         editor.textChanged.connect(self._on_editor_text_changed)
         editor.cursorPositionChanged.connect(self._update_live_stats)
+        return editor
+
+    def new_tab(self, content="", title="Sin Título", filepath=None, lazy=False):
+        """
+        Crea una nueva pestaña.
+        Si lazy=True, solo se crea un marcador de posición ligero LazyTabPlaceholder
+        y el CustomTextEdit se instanciará cuando el usuario seleccione la pestaña.
+        """
+        if lazy:
+            placeholder = LazyTabPlaceholder(content=content, filepath=filepath)
+            self.tab_files[placeholder] = filepath
+            index = self.view.tabs.addTab(placeholder, title)
+            return placeholder
+
+        editor = self._create_editor_instance(content, filepath)
+        index = self.view.tabs.addTab(editor, title)
+        self.view.tabs.setCurrentIndex(index)
+        
         self._update_live_stats()
         if self.view.btn_toggle_binary.isChecked():
             self._update_translation_direction()
+        return editor
+
+    def ensure_tab_loaded(self, index):
+        """
+        Garantiza que la pestaña en el índice indicado esté materializada si era perezosa (lazy).
+        Devuelve el CustomTextEdit cargado.
+        """
+        if index < 0 or index >= self.view.tabs.count():
+            return None
+            
+        widget = self.view.tabs.widget(index)
+        if isinstance(widget, LazyTabPlaceholder):
+            filepath = self.tab_files.get(widget, widget.filepath)
+            editor = widget.materialize(self._create_editor_instance)
+            # Mapear el editor real a su ruta de archivo
+            self.tab_files[editor] = filepath
+            return editor
+            
+        return widget
 
     def close_tab(self, index):
         if index < 0: return
         widget = self.view.tabs.widget(index)
         self.view.tabs.removeTab(index)
+        
+        # Limpieza de referencias
         if widget in self.tab_files:
             del self.tab_files[widget]
+            
+        if isinstance(widget, LazyTabPlaceholder):
+            editor = widget.get_editor()
+            if editor and editor in self.tab_files:
+                del self.tab_files[editor]
+                
         widget.deleteLater()
         
         if self.view.tabs.count() == 0:
@@ -187,17 +244,32 @@ class EditorController:
     # --- Operaciones de Archivo ---
 
     def open_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(
-            self.view, "Abrir Archivo", "", "Archivos de texto (*.txt *.md *.html);;Todos los archivos (*)"
+        file_paths, _ = QFileDialog.getOpenFileNames(
+            self.view, "Abrir Archivos", "", "Archivos de texto (*.txt *.md *.html);;Todos los archivos (*)"
         )
-        if file_path:
-            try:
-                content = self.model.read_file(file_path)
-                title = os.path.basename(file_path)
-                self.new_tab(content, title, file_path)
-                self.view.show_message(f"Abierto: {title}")
-            except Exception as e:
-                QMessageBox.critical(self.view, "Error", f"No se pudo abrir:\n{e}")
+        if file_paths:
+            # Si solo se abre un archivo, se carga inmediatamente
+            if len(file_paths) == 1:
+                path = file_paths[0]
+                try:
+                    content = self.model.read_file(path)
+                    title = os.path.basename(path)
+                    self.new_tab(content, title, path, lazy=False)
+                    self.view.show_message(f"Abierto: {title}")
+                except Exception as e:
+                    QMessageBox.critical(self.view, "Error", f"No se pudo abrir:\n{e}")
+            else:
+                # Si se abren múltiples archivos a la vez (sesión o lote de pestañas),
+                # la primera pestaña se renderiza inmediatamente y las demás se cargan de forma diferida (lazy).
+                for i, path in enumerate(file_paths):
+                    try:
+                        content = self.model.read_file(path)
+                        title = os.path.basename(path)
+                        is_lazy = (i > 0)
+                        self.new_tab(content, title, path, lazy=is_lazy)
+                    except Exception as e:
+                        QMessageBox.critical(self.view, "Error", f"No se pudo abrir {os.path.basename(path)}:\n{e}")
+                self.view.show_message(f"Se abrieron {len(file_paths)} archivos (carga perezosa habilitada)")
 
     def save_file(self):
         editor = self.view.get_current_editor()
@@ -232,7 +304,14 @@ class EditorController:
             self.tab_files[editor] = file_path
             
             # Actualizar título de pestaña
-            index = self.view.tabs.indexOf(editor)
+            index = -1
+            for i in range(self.view.tabs.count()):
+                w = self.view.tabs.widget(i)
+                ed = w.get_editor() if hasattr(w, "get_editor") else w
+                if ed == editor:
+                    index = i
+                    break
+                    
             if index >= 0:
                 self.view.tabs.setTabText(index, os.path.basename(file_path))
                 
@@ -244,12 +323,12 @@ class EditorController:
     
     def _toggle_word_wrap(self):
         checked = self.view.action_word_wrap.isChecked()
+        mode = CustomTextEdit.LineWrapMode.WidgetWidth if checked else CustomTextEdit.LineWrapMode.NoWrap
         for i in range(self.view.tabs.count()):
-            editor = self.view.tabs.widget(i)
-            if checked:
-                editor.setLineWrapMode(CustomTextEdit.LineWrapMode.WidgetWidth)
-            else:
-                editor.setLineWrapMode(CustomTextEdit.LineWrapMode.NoWrap)
+            widget = self.view.tabs.widget(i)
+            editor = widget.get_editor() if hasattr(widget, "get_editor") else widget
+            if editor and hasattr(editor, "setLineWrapMode"):
+                editor.setLineWrapMode(mode)
 
     def _toggle_status_bar(self):
         self.view.status_bar.setVisible(self.view.action_toggle_status.isChecked())
@@ -434,6 +513,8 @@ class EditorController:
             self._is_updating = False
 
     def _on_tab_changed(self, index):
+        if index >= 0:
+            self.ensure_tab_loaded(index)
         self._update_live_stats()
         if self.view.btn_toggle_binary.isChecked():
             self._update_translation_direction()
@@ -443,12 +524,39 @@ class EditorController:
     # --- Formato Enriquecido ---
     
     def _change_font(self, *args):
-        self.current_font = self.view.combo_font.currentFont()
+        if args and isinstance(args[0], QFont):
+            self.current_font = QFont(args[0])
+        else:
+            self.current_font = self.view.combo_font.currentFont()
+            
         self.current_font.setPointSize(self.view.spin_size.value())
         
         for i in range(self.view.tabs.count()):
-            editor = self.view.tabs.widget(i)
-            editor.setFont(self.current_font)
+            widget = self.view.tabs.widget(i)
+            editor = widget.get_editor() if hasattr(widget, "get_editor") else widget
+            if editor and hasattr(editor, "setFont"):
+                editor.setFont(self.current_font)
+
+    def _on_font_completed(self, font_name):
+        font = QFont(font_name)
+        self.view.combo_font.setCurrentFont(font)
+        self.view.combo_font.lineEdit().setText(font_name)
+        self._change_font(font)
+
+    def _on_font_return_pressed(self):
+        comp = self.view.combo_font.completer()
+        text = self.view.combo_font.lineEdit().text().strip()
+        if comp and comp.currentCompletion():
+            font_name = comp.currentCompletion()
+        elif text:
+            font_name = text
+        else:
+            font_name = self.current_font.family()
+            
+        font = QFont(font_name)
+        self.view.combo_font.setCurrentFont(font)
+        self.view.combo_font.lineEdit().setText(font.family())
+        self._change_font(font)
             
     def _toggle_bold(self):
         editor = self.view.get_current_editor()
