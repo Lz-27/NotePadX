@@ -210,3 +210,38 @@ class CustomTextEdit(QTextEdit):
                                  Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop, number)
             
             block = block.next()
+
+
+class LazyTabPlaceholder(QWidget):
+    """
+    Widget de marcador de posición liviano que retiene el contenido o ruta del archivo
+    hasta que la pestaña se selecciona por primera vez, implementando carga diferida (Lazy Loading).
+    """
+    def __init__(self, content="", filepath=None, parent=None):
+        super().__init__(parent)
+        self.content = content
+        self.filepath = filepath
+        self._loaded_editor = None
+        self._is_loaded = False
+        
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+    def is_loaded(self):
+        return self._is_loaded
+
+    def get_editor(self):
+        return self._loaded_editor
+
+    def materialize(self, create_editor_callback):
+        """
+        Instancia y renderiza el editor real CustomTextEdit solo cuando es invocado.
+        """
+        if self._is_loaded:
+            return self._loaded_editor
+            
+        self._loaded_editor = create_editor_callback(self.content, self.filepath)
+        self.layout().addWidget(self._loaded_editor)
+        self._is_loaded = True
+        return self._loaded_editor
+
