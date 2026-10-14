@@ -1,11 +1,20 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QMenuBar, QMenu, 
     QToolBar, QPushButton, QStatusBar, QTabWidget, QLineEdit, QLabel, 
-    QComboBox, QFontComboBox, QSpinBox, QSplitter, QTextEdit
+    QComboBox, QFontComboBox, QSpinBox, QSplitter, QTextEdit,
+    QCompleter, QStyledItemDelegate
 )
 from PyQt6.QtGui import QAction, QIcon, QFont, QTextCharFormat, QColor
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QEvent, QTimer
 #from app.editor_widget import CustomTextEdit
+
+class FontCompleterDelegate(QStyledItemDelegate):
+    """Renderiza cada fuente en su propia tipografía para una previsualización clara y elegante."""
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        font_name = index.data(Qt.ItemDataRole.DisplayRole)
+        if font_name:
+            option.font = QFont(font_name, 10)
 
 class EditorView(QMainWindow):
     """
@@ -190,10 +199,12 @@ class EditorView(QMainWindow):
         
         # Fonts
         self.combo_font = QFontComboBox()
-        self.combo_font.setToolTip("Tipo de Letra")
-        self.combo_font.setMinimumWidth(120)
-        self.combo_font.setMaximumWidth(180)
+        self.combo_font.setToolTip("Tipo de Letra (Escribe para buscar coincidencias)")
+        self.combo_font.setMinimumWidth(140)
+        self.combo_font.setMaximumWidth(220)
         self.combo_font.setEditable(True)
+        self.combo_font.setInsertPolicy(QFontComboBox.InsertPolicy.NoInsert)
+        self._setup_font_completer()
         
         self.spin_size = QSpinBox()
         self.spin_size.setRange(8, 72)
@@ -250,11 +261,49 @@ class EditorView(QMainWindow):
         self.combo_binary_action = self.main_toolbar.addWidget(self.combo_binary_mode)
         self.combo_binary_action.setVisible(False)
 
+    def _setup_font_completer(self):
+        """Configura el autocompletado en el selector de fuentes para filtrar coincidencias en vivo."""
+        completer = self.combo_font.completer()
+        if completer:
+            completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+            completer.setFilterMode(Qt.MatchFlag.MatchContains)
+            completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+            completer.setMaxVisibleItems(10)
+            
+            popup = completer.popup()
+            if popup:
+                popup.setItemDelegate(FontCompleterDelegate(popup))
+                popup.setUniformItemSizes(True)
+                
+            line_edit = self.combo_font.lineEdit()
+            if line_edit:
+                line_edit.setPlaceholderText("Buscar fuente...")
+                line_edit.installEventFilter(self)
+                line_edit.textEdited.connect(self._on_font_text_edited)
+
+    def _on_font_text_edited(self, text):
+        """Al escribir en la caja de fuente, despliega las coincidencias filtradas."""
+        completer = self.combo_font.completer()
+        if completer:
+            completer.setCompletionPrefix(text)
+            completer.complete()
+
+    def eventFilter(self, watched, event):
+        """Al hacer clic o dar foco a la caja de fuente, selecciona todo el texto para facilitar la escritura."""
+        if hasattr(self, 'combo_font') and watched == self.combo_font.lineEdit():
+            if event.type() == QEvent.Type.FocusIn:
+                QTimer.singleShot(0, self.combo_font.lineEdit().selectAll)
+        return super().eventFilter(watched, event)
+
     def _setup_format_toolbar(self):
         pass # Removed as we combined it
 
     def get_current_editor(self):
-        return self.tabs.currentWidget()
+        widget = self.tabs.currentWidget()
+        if widget and hasattr(widget, "get_editor"):
+            return widget.get_editor()
+        return widget
 
     def show_message(self, message):
         self.status_bar.showMessage(message, 3000)
+
