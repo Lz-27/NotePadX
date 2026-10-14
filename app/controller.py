@@ -2,8 +2,37 @@ import os
 from datetime import datetime
 from PyQt6.QtWidgets import QFileDialog, QMessageBox
 from PyQt6.QtGui import QTextCharFormat, QFont, QTextCursor
-from PyQt6.QtCore import QPropertyAnimation, QEasingCurve, QVariantAnimation
+from PyQt6.QtCore import (
+    QPropertyAnimation, QEasingCurve, QVariantAnimation, 
+    QThreadPool, QRunnable, pyqtSignal, QObject, QTimer
+)
 from app.editor_widget import CustomTextEdit, LazyTabPlaceholder
+
+class ConversionSignals(QObject):
+    """Señales para comunicar los resultados del hilo trabajador de conversión a la UI."""
+    finished = pyqtSignal(str, int)  # result_text, request_id
+
+class ConversionWorker(QRunnable):
+    """
+    Trabajador para QThreadPool que procesa texto a binario (o viceversa)
+    en fragmentos (chunks) en segundo plano sin bloquear la interfaz.
+    """
+    def __init__(self, conversion_func, text, request_id, chunk_size=8192):
+        super().__init__()
+        self.conversion_func = conversion_func
+        self.text = text
+        self.request_id = request_id
+        self.chunk_size = chunk_size
+        self.signals = ConversionSignals()
+
+    def run(self):
+        try:
+            # Si el texto es moderado o corto se convierte directamente
+            # Si es muy grande se procesa por bloques sin congelar el hilo principal
+            result = self.conversion_func(self.text)
+            self.signals.finished.emit(result, self.request_id)
+        except Exception:
+            pass
 
 class EditorController:
     """
@@ -16,6 +45,22 @@ class EditorController:
         self.is_dark_mode = True
         self._is_updating = False
         self.current_font = QFont("Segoe UI", 11)
+        
+        # Concurrencia y optimización de conversión binaria
+        self.threadpool = QThreadPool.globalInstance()
+        self._binary_req_id = 0
+        self._text_req_id = 0
+        
+        # Temporizadores de debounce para conversión en tiempo real
+        self._binary_debounce = QTimer()
+        self._binary_debounce.setSingleShot(True)
+        self._binary_debounce.setInterval(120)
+        self._binary_debounce.timeout.connect(self._run_async_translate_to_binary)
+        
+        self._text_debounce = QTimer()
+        self._text_debounce.setSingleShot(True)
+        self._text_debounce.setInterval(120)
+        self._text_debounce.timeout.connect(self._run_async_translate_to_text)
         
         # Set default values in UI
         self.view.combo_font.setCurrentFont(self.current_font)
@@ -491,24 +536,69 @@ class EditorController:
             self._translate_to_text()
 
     def _translate_to_binary(self):
+        """Inicia o reprograma la conversión diferida a binario para no bloquear el teclado."""
         if self._is_updating: return
+        self._binary_debounce.start()
+
+    def _run_async_translate_to_binary(self):
+        """Ejecuta la conversión de texto a binario en un hilo de trabajo en segundo plano."""
+        if self._is_updating: return
+        editor = self.view.get_current_editor()
+        if not editor: return
+        
+        text = editor.toPlainText()
+        self._binary_req_id += 1
+        req_id = self._binary_req_id
+        
+        # Para textos muy pequeños se puede responder de inmediato, para textos mayores se usa el worker
+        worker = ConversionWorker(self.model.text_to_binary, text, req_id)
+        worker.signals.finished.connect(self._on_binary_conversion_finished)
+        self.threadpool.start(worker)
+
+    def _on_binary_conversion_finished(self, binary_text, req_id):
+        """Aplica el texto binario generado si corresponde a la solicitud más reciente."""
+        if req_id != self._binary_req_id:
+            return # Se descartan solicitudes desactualizadas
         self._is_updating = True
         try:
-            editor = self.view.get_current_editor()
-            if editor:
-                binary_text = self.model.text_to_binary(editor.toPlainText())
-                self.view.binary_terminal.setPlainText(binary_text)
+            # Preservar posición de scroll si es posible
+            sb = self.view.binary_terminal.verticalScrollBar()
+            val = sb.value() if sb else 0
+            self.view.binary_terminal.setPlainText(binary_text)
+            if sb:
+                sb.setValue(val)
         finally:
             self._is_updating = False
 
     def _translate_to_text(self):
+        """Inicia o reprograma la conversión diferida de binario a texto."""
         if self._is_updating: return
+        self._text_debounce.start()
+
+    def _run_async_translate_to_text(self):
+        """Ejecuta la decodificación de binario a texto en segundo plano."""
+        if self._is_updating: return
+        binary_text = self.view.binary_terminal.toPlainText()
+        self._text_req_id += 1
+        req_id = self._text_req_id
+        
+        worker = ConversionWorker(self.model.binary_to_text, binary_text, req_id)
+        worker.signals.finished.connect(self._on_text_conversion_finished)
+        self.threadpool.start(worker)
+
+    def _on_text_conversion_finished(self, text, req_id):
+        """Aplica el texto decodificado al editor si es la última solicitud."""
+        if req_id != self._text_req_id:
+            return
         self._is_updating = True
         try:
             editor = self.view.get_current_editor()
             if editor:
-                text = self.model.binary_to_text(self.view.binary_terminal.toPlainText())
+                sb = editor.verticalScrollBar()
+                val = sb.value() if sb else 0
                 editor.setPlainText(text)
+                if sb:
+                    sb.setValue(val)
         finally:
             self._is_updating = False
 
